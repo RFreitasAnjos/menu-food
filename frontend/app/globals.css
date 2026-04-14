@@ -1,0 +1,117 @@
+@import "tailwindcss";
+
+/* Class-based dark mode */
+@custom-variant dark (&:where(.dark, .dark *));
+
+html {
+  scrollbar-gutter: stable;
+}
+
+/* =======================================================
+   🎨 LIGHT THEME — Vermelho · Branco (variações) · Preto
+======================================================= */
+:root {
+  /* Page base */
+  --background: #f6f6f6;
+  --foreground: #111111;
+
+  /* Red brand */
+  --primary: #cc2200;
+  --primary-color: #cc2200;        /* alias — usado pelos componentes */
+  --primary-hover: #a81b00;
+
+  /* Whites — superfícies em tons distintos de branco */
+  --surface-1: #ffffff;            /* branco puro  — cards, modais        */
+  --surface-2: #fafafa;            /* branco papel — áreas de seção       */
+  --surface-3: #f3f3f3;            /* branco frio  — inputs, chips        */
+  --surface-4: #fff5f5;            /* branco rubor — destaque suave/hover */
+
+  /* Acentos */
+  --secondary: #fff0ee;
+  --accent: #cc2200;
+
+  /* Texto & bordas */
+  --muted: #6b7280;
+  --border: #e2e2e6;
+
+  /* Feedback */
+  --success: #16a34a;
+  --error: #cc2200;
+
+  /* Footer — preto */
+  --footer: #0f0f0f;
+  --footer-background: #0f0f0f;        /* alias — Footer.tsx */
+  --footer-background-dark: #000000;   /* alias — Footer dark */
+}
+
+/* =======================================================
+   🌙 DARK THEME — melhorias de contraste e definição
+======================================================= */
+html.dark {
+  --background: #0c0c11;
+  --foreground: #efeff5;
+
+  --primary: #cc2200;
+  --primary-color: #cc2200;
+  --primary-hover: #a81b00;
+
+  /* Superfícies com mais separação visual */
+  --surface-1: #16161e;            /* cards                         */
+  --surface-2: #101018;            /* fundo secundário              */
+  --surface-3: #1e1e2a;            /* elevado — inputs, chips       */
+  --surface-4: #200d0d;            /* rubor escuro — hover/destaque */
+
+  --secondary: #1a0c0c;
+  --accent: #ff6b6b;
+
+  --muted: #9ca3af;
+  --border: #2c2c3e;               /* bordas claramente visíveis    */
+
+  --success: #4ade80;
+  --error: #f87171;
+
+  --footer: #050508;
+  --footer-background: #050508;
+  --footer-background-dark: #020204;
+}
+
+/* =======================================================
+    THEME VARIÁVEIS PARA COMPONENTES (alias)
+======================================================= */
+@theme inline {
+  --color-background:    var(--background);
+  --color-foreground:    var(--foreground);
+  --color-primary:       var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-secondary:     var(--secondary);
+  --color-accent:        var(--accent);
+  --color-surface-1:     var(--surface-1);
+  --color-surface-2:     var(--surface-2);
+  --color-surface-3:     var(--surface-3);
+  --color-surface-4:     var(--surface-4);
+  --color-border:        var(--border);
+  --color-muted:         var(--muted);
+  --color-success:       var(--success);
+  --color-error:         var(--error);
+}
+
+/* =======================================================
+   BASE
+======================================================= */
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: "Roboto", sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* =======================================================
+   UTILITIES
+======================================================= */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
