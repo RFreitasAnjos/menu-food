@@ -110,12 +110,12 @@ export default function Navbar() {
                               {t("nav_profile") !== "nav_profile" ? t("nav_profile") : "Meu Perfil"}
                            </Link>
                            <Link
-                              href="/historic"
+                              href="/orders"
                               onClick={() => setDropdownOpen(false)}
                               className="flex items-center gap-2 px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors"
                            >
                               <History size={15} />
-                              {t("nav_historic")}
+                              {t("nav_orders") !== "nav_orders" ? t("nav_orders") : "Meus Pedidos"}
                            </Link>
                            <button
                               onClick={handleLogout}
@@ -166,12 +166,12 @@ export default function Navbar() {
          {menuOpen && (
             <div className="sm:hidden border-t border-white/20 bg-[var(--primary-color)] px-4 py-4 flex flex-col gap-4">
                <Link
-                  href="/historic"
+                  href="/orders"
                   onClick={close}
                   className="flex items-center gap-2 hover:opacity-80 transition-opacity text-sm"
                >
                   <History size={18} />
-                  {t("nav_historic")}
+                  {t("nav_orders") !== "nav_orders" ? t("nav_orders") : "Meus Pedidos"}
                </Link>
 
                {/* Auth — mobile */}

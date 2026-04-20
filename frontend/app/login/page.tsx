@@ -1,17 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { UtensilsCrossed, Mail, Lock, Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { UtensilsCrossed, Mail, Lock, Eye, EyeOff } from "lucide-react";
+import GoogleIcon from '@mui/icons-material/Google';
 import { useLanguage } from "@/app/contexts/LanguageContext";
 import { useAuth } from "@/app/contexts/AuthContext";
 import { authApi, userApi } from "@/api/api";
 
 export default function LoginPage() {
   const { t } = useLanguage();
-  const { login } = useAuth();
+  const { login, isLoggedIn } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      router.replace("/profile");
+    }
+  }, [isLoggedIn, router]);
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -38,7 +45,7 @@ export default function LoginPage() {
     <main className="flex-1 flex items-center justify-center px-4 py-12 bg-gray-50 dark:bg-zinc-900">
       <div className="w-full max-w-md">
         {/* Card */}
-          <div className="bg-white dark:bg-zinc-800 rounded-2xl shadow-lg p-8">
+        <div className="bg-white dark:bg-zinc-800 rounded-2xl shadow-lg p-8">
           {/* Logo */}
           <div className="flex flex-col items-center mb-8">
             <div className="bg-[var(--primary-color)] text-white rounded-2xl p-4 mb-4">
@@ -84,20 +91,12 @@ export default function LoginPage() {
 
             {/* Password */}
             <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-200"
-                >
-                  {t("login_password_label")}
-                </label>
-                <button
-                  type="button"
-                  className="text-xs text-[var(--primary-color)] hover:opacity-80 transition-opacity"
-                >
-                  {t("login_forgot")}
-                </button>
-              </div>
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-200"
+              >
+                {t("login_password_label")}
+              </label>
               <div className="relative">
                 <Lock
                   size={16}
@@ -125,6 +124,13 @@ export default function LoginPage() {
               </div>
             </div>
 
+            {/* Forgot password */}
+            <div className="flex items-center justify-end -mt-1">
+              <Link href="/recovery" className="text-sm text-[var(--primary-color)] hover:underline">
+                {t("login_forgot")}
+              </Link>
+            </div>
+
             {/* Submit */}
             {error && (
               <p className="text-sm text-red-500 text-center -mt-1">{error}</p>
@@ -150,16 +156,18 @@ export default function LoginPage() {
             href="/"
             className="flex items-center justify-center gap-2 w-full border border-gray-200 dark:border-zinc-600 text-gray-600 dark:text-gray-300 py-3 rounded-xl font-medium text-sm hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors"
           >
-            <ArrowLeft size={16} />
-            {t("login_continue_guest")}
+            <GoogleIcon size={18} className="text-gray-400" />
+            {t("login_google")}
           </Link>
 
           {/* Sign up link */}
           <p className="text-center text-sm text-gray-400 mt-6">
             {t("login_no_account")}{" "}
-            <button className="text-[var(--primary-color)] font-semibold hover:opacity-80 transition-opacity">
-              {t("login_register")}
-            </button>
+            <Link href="/register">
+              <button className="text-[var(--primary-color)] font-semibold hover:opacity-80 transition-opacity">
+                {t("login_register")}
+              </button>
+            </Link>
           </p>
         </div>
       </div>

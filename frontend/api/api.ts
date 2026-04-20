@@ -1,7 +1,9 @@
 // ──────────────────────────────────────────────
 //  Base
 // ──────────────────────────────────────────────
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
+// Em desenvolvimento o Next.js faz proxy de /api/** → localhost:8080 (ver next.config.ts).
+// Em produção defina NEXT_PUBLIC_API_URL como string vazia ou a mesma origem.
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
 
 /** Faz refresh do access token usando o refresh_token cookie. */
 async function doRefresh(): Promise<void> {
@@ -81,7 +83,7 @@ export interface UserResponse {
   id: string;
   name: string;
   email: string;
-  role: string;
+  phone?: string;
   createdAt: string;
 }
 
@@ -161,6 +163,7 @@ export interface OrderResponse {
   totalPrice: number;
   address: AddressResponse | null;
   createdAt: string;
+  checkoutUrl: string | null;
   items: OrderItemResponse[];
 }
 
@@ -203,20 +206,26 @@ export const userApi = {
 
   getMe: () => request<UserResponse>("/api/v1/client/users/me"),
 
+  updateMe: (data: { name?: string; phone?: string }) =>
+    request<UserResponse>("/api/v1/client/users/me", {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+
   getOrders: (userId: string) =>
     request<OrderResponse[]>(`/api/v1/client/users/${userId}/orders`),
 
-  addAddress: (userId: string, data: CreateAddressRequest) =>
-    request<AddressResponse>(`/api/v1/client/users/${userId}/addresses`, {
+  addAddress: (_userId: string, data: CreateAddressRequest) =>
+    request<AddressResponse>("/api/v1/client/users/me/addresses", {
       method: "POST",
       body: JSON.stringify(data),
     }),
 
-  listAddresses: (userId: string) =>
-    request<AddressResponse[]>(`/api/v1/client/users/${userId}/addresses`),
+  listAddresses: (_userId: string) =>
+    request<AddressResponse[]>("/api/v1/client/users/me/addresses"),
 
-  deleteAddress: (userId: string, addressId: string) =>
-    request<void>(`/api/v1/client/users/${userId}/addresses/${addressId}`, {
+  deleteAddress: (_userId: string, addressId: string) =>
+    request<void>(`/api/v1/client/users/me/addresses/${addressId}`, {
       method: "DELETE",
     }),
 };
@@ -232,11 +241,39 @@ export const productApi = {
 };
 
 // ──────────────────────────────────────────────
+//  Checkout (Mercado Pago)
+// ──────────────────────────────────────────────
+export interface CheckoutResponse {
+  orderId: string;
+  checkoutUrl: string;
+}
+
+// ──────────────────────────────────────────────
 //  Orders
 // ──────────────────────────────────────────────
 export const orderApi = {
   create: (data: CreateOrderRequest) =>
     request<unknown>("/api/v1/client/orders", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  getById: (id: string) =>
+    request<OrderResponse>(`/api/v1/client/orders/${id}`),
+
+  getPaymentLink: (id: string) =>
+    request<CheckoutResponse>(`/api/v1/client/orders/${id}/payment-link`, {
+      method: "POST",
+    }),
+};
+
+export const checkoutApi = {
+  /**
+   * Cria o pedido na API e retorna a URL de checkout do Mercado Pago.
+   * O frontend deve redirecionar o usuário para `checkoutUrl`.
+   */
+  createCheckout: (data: CreateOrderRequest) =>
+    request<CheckoutResponse>("/api/v1/client/checkout", {
       method: "POST",
       body: JSON.stringify(data),
     }),

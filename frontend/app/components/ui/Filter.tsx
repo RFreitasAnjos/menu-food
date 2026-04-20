@@ -10,6 +10,8 @@ import {
    UtensilsCrossed,
    Salad,
    CupSoda,
+   Hamburger,
+   Cookie,
  } from "lucide-react";
 import { useLanguage } from "@/app/contexts/LanguageContext";
 
@@ -41,12 +43,9 @@ function parseValue(v: string): number {
 
 /** Emoji categorias */
 const CATEGORY_ICON: Record<string, React.ComponentType<{ size?: number }>> = {
-  pizza: Pizza,
-  burger: Sandwich,
-  sushi: Fish,
-  pasta: UtensilsCrossed,
-  salad: Salad,
-  bebida: CupSoda,
+  food: Hamburger,
+  dessert: Cookie,
+  drink: CupSoda,
 };
 
 export default function Filter({

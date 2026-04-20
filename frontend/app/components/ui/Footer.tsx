@@ -3,12 +3,10 @@
 import { UtensilsCrossed, Clock, MapPin, ChevronRight } from "lucide-react";
 import { useLanguage } from "@/app/contexts/LanguageContext";
 import SocialMedia from "./SocialMedia";
-import isOpenNow from "@/public/utils/TimeNow";
 import Schedules from "./Schedules";
 
 export default function Footer() {
    const { t } = useLanguage();
-   const open = isOpenNow();
 
    return (
       <footer className="bg-[var(--footer-background)] text-gray-300 mt-auto">
@@ -50,16 +48,6 @@ export default function Footer() {
                   </h3>
 
 
-                  {/* Status */}
-                  <span
-                     className={`inline-flex items-center gap-2 text-sm font-semibold px-3 py-1.5 rounded-full w-fit ${open
-                           ? "bg-green-500/10 text-green-400 border border-green-500/20"
-                           : "bg-red-500/10 text-red-400 border border-red-500/20"
-                        }`}
-                  >
-                     <span className={`w-2 h-2 rounded-full ${open ? "bg-green-400" : "bg-red-400"} animate-pulse`} />
-                     {open ? t("footer_open_now") : t("footer_closed_now")}
-                  </span>
                   <Schedules />
                </div>
 
