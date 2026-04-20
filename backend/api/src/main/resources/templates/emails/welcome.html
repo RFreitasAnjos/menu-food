@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+   <meta charset="UTF-8" />
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Bem-vindo ao MenuFood</title>
+</head>
+
+<body style="margin:0;padding:0;background-color:#f6f6f6;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
+
+   <!-- Wrapper -->
+   <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f6f6f6;padding:32px 16px;">
+      <tr>
+         <td align="center">
+
+            <!-- Card principal -->
+            <table width="100%" cellpadding="0" cellspacing="0" border="0"
+               style="max-width:560px;background-color:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08);">
+
+               <!-- Header vermelho -->
+               <tr>
+                  <td align="center"
+                     style="background-color:#cc2200;padding:36px 32px 28px;">
+                     <p style="margin:0 0 10px;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.7);font-weight:500;">
+                        Cardápio Virtual
+                     </p>
+                     <h1 style="margin:0;font-size:32px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;">
+                        MenuFood
+                     </h1>
+                     <!-- Divider decorativo -->
+                     <div style="width:48px;height:3px;background-color:rgba(255,255,255,.4);border-radius:2px;margin:16px auto 0;"></div>
+                  </td>
+               </tr>
+
+               <!-- Ícone de boas-vindas -->
+               <tr>
+                  <td align="center" style="padding-top:36px;padding-bottom:0;">
+                     <div style="width:72px;height:72px;border-radius:50%;background-color:#fff5f5;border:2px solid #ffd5cc;display:inline-block;line-height:72px;text-align:center;font-size:36px;">
+                        🎉
+                     </div>
+                  </td>
+               </tr>
+
+               <!-- Corpo -->
+               <tr>
+                  <td style="padding:28px 40px 8px;">
+                     <h2 style="margin:0 0 8px;font-size:22px;font-weight:700;color:#111111;text-align:center;">
+                        Olá, <span th:text="${userName}">Visitante</span>!
+                     </h2>
+                     <p style="margin:0 0 20px;font-size:14px;color:#666666;text-align:center;line-height:1.6;">
+                        Sua conta foi criada com sucesso. Seja muito bem-vindo(a) ao <strong style="color:#cc2200;">MenuFood</strong> —
+                        o jeito mais rápido e fácil de montar o seu pedido online.
+                     </p>
+                  </td>
+               </tr>
+
+               <!-- Destaques -->
+               <tr>
+                  <td style="padding:0 40px 28px;">
+                     <table width="100%" cellpadding="0" cellspacing="0" border="0"
+                        style="background-color:#fff5f5;border-radius:8px;border-left:4px solid #cc2200;padding:0;">
+                        <tr>
+                           <td style="padding:20px 20px;">
+                              <table width="100%" cellpadding="0" cellspacing="0" border="0">
+
+                                 <tr>
+                                    <td width="28" valign="top" style="padding-right:12px;font-size:18px;">🍔</td>
+                                    <td>
+                                       <p style="margin:0 0 2px;font-size:13px;font-weight:700;color:#111111;">Monte seu pedido</p>
+                                       <p style="margin:0;font-size:12px;color:#666666;line-height:1.5;">Explore o cardápio, escolha seus itens e personalize com as opções disponíveis.</p>
+                                    </td>
+                                 </tr>
+
+                                 <tr><td colspan="2" style="height:14px;"></td></tr>
+
+                                 <tr>
+                                    <td width="28" valign="top" style="padding-right:12px;font-size:18px;">📦</td>
+                                    <td>
+                                       <p style="margin:0 0 2px;font-size:13px;font-weight:700;color:#111111;">Acompanhe em tempo real</p>
+                                       <p style="margin:0;font-size:12px;color:#666666;line-height:1.5;">Monitore o status do seu pedido direto pelo app, da confirmação até a entrega.</p>
+                                    </td>
+                                 </tr>
+
+                                 <tr><td colspan="2" style="height:14px;"></td></tr>
+
+                                 <tr>
+                                    <td width="28" valign="top" style="padding-right:12px;font-size:18px;">💳</td>
+                                    <td>
+                                       <p style="margin:0 0 2px;font-size:13px;font-weight:700;color:#111111;">Pagamento fácil</p>
+                                       <p style="margin:0;font-size:12px;color:#666666;line-height:1.5;">Pague de forma rápida e segura pelas opções disponíveis na finalização.</p>
+                                    </td>
+                                 </tr>
+
+                              </table>
+                           </td>
+                        </tr>
+                     </table>
+                  </td>
+               </tr>
+
+               <!-- CTA -->
+               <tr>
+                  <td align="center" style="padding:0 40px 36px;">
+                     <a th:href="${frontendUrl}"
+                        href="#"
+                        style="display:inline-block;background-color:#cc2200;color:#ffffff;text-decoration:none;font-size:14px;font-weight:700;padding:14px 36px;border-radius:8px;letter-spacing:0.3px;">
+                        Ver Cardápio
+                     </a>
+                     <p style="margin:16px 0 0;font-size:12px;color:#999999;line-height:1.6;">
+                        Se você não criou esta conta,
+                        <a href="#" style="color:#cc2200;text-decoration:none;">entre em contato</a>
+                        para que possamos ajudá-lo.
+                     </p>
+                  </td>
+               </tr>
+
+               <!-- Divider -->
+               <tr>
+                  <td style="padding:0 32px;">
+                     <div style="height:1px;background-color:#f0f0f0;"></div>
+                  </td>
+               </tr>
+
+               <!-- Footer -->
+               <tr>
+                  <td align="center" style="padding:20px 32px 28px;">
+                     <p style="margin:0 0 4px;font-size:12px;color:#999999;">
+                        © <span th:text="${#dates.year(#dates.createNow())}">2026</span> MenuFood. Todos os direitos reservados.
+                     </p>
+                     <p style="margin:0;font-size:11px;color:#bbbbbb;">
+                        Este e-mail foi enviado automaticamente. Por favor, não responda.
+                     </p>
+                  </td>
+               </tr>
+
+            </table>
+            <!-- /Card principal -->
+
+         </td>
+      </tr>
+   </table>
+
+</body>
+
+</html>

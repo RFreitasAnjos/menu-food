@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <th:block th:replace="~{management/layout :: head('Pedido')}"></th:block>
+</head>
+<body>
+   <th:block th:replace="~{management/layout :: sidebar('orders')}"></th:block>
+
+   <div class="main-wrapper">
+      <th:block th:replace="~{management/layout :: topbar('Detalhes do Pedido')}"></th:block>
+
+      <main class="main-content">
+         <th:block th:replace="~{management/layout :: alerts}"></th:block>
+
+         <div class="mb-3">
+            <a href="/management/orders" class="btn btn-sm btn-outline-secondary">
+               <i class="bi bi-arrow-left me-1"></i>Voltar para Pedidos
+            </a>
+         </div>
+
+         <div class="card stat-card">
+            <div class="card-body">
+               <h5 class="card-title mb-4">Pedido #<span th:text="${order.id}">-</span></h5>
+               <!-- Detalhes do pedido aqui -->
+               <p><strong>Data:</strong> <span th:text="${#dates.format(order.createdAt, 'dd/MM/yyyy HH:mm')}">-</span></p>
+               <p><strong>Status:</strong> <span th:text="${order.status}">-</span></p>
+               <p><strong>Valor Total:</strong> <span th:text="${'R$ ' + #numbers.formatDecimal(order.totalAmount, 1, 'POINT', 2, 'COMMA')}">R$ 0,00</span></p>
+               <h6 class="mt-4">Itens do Pedido:</h6>
+               <ul>
+                  <li th:each="item : ${order.items}">
+                     <span th:text="${item.productName}">Produto</span> x <span th:text="${item.quantity}">1</span> - <span th:text="${'R$ ' + #numbers.formatDecimal(item.totalPrice, 1, 'POINT', 2, 'COMMA')}">R$ 0,00</span>
+                  </li>
+               </ul>
+            </div>
+         </div>
+      </main>
+</body>
+</html>

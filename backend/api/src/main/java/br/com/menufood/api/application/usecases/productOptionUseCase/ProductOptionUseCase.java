@@ -1,6 +1,8 @@
 package br.com.menufood.api.application.usecases.productOptionUseCase;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
@@ -34,4 +36,19 @@ public class ProductOptionUseCase {
       return productOptionRepository.findAll();
    }
    
+   public void deleteOption(UUID id) {
+      ProductOption option = productOptionRepository.findById(id)
+         .orElseThrow(() -> new RuntimeException("Opção de produto não encontrada: " + id));
+      ProductOptionGroup group = option.getGroup();
+      group.getOptions().removeIf(o -> o.getId().equals(id));
+      productOptionGroupRepository.save(group);
+   }
+
+   public void updateOption(UUID id, String name, BigDecimal price) {
+      ProductOption option = productOptionRepository.findById(id)
+         .orElseThrow(() -> new RuntimeException("Opção de produto não encontrada: " + id));
+      option.setName(name);
+      option.setPrice(price);
+      productOptionRepository.save(option);
+   }
 }

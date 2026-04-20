@@ -12,6 +12,7 @@ public class UserResponse {
    private final UUID id;
    private final String name;
    private final String email;
+   private final String phone;
    private final UserRole role;
    private final LocalDateTime createdAt;
 
@@ -19,6 +20,7 @@ public class UserResponse {
       this.id = user.getId();
       this.name = user.getName();
       this.email = user.getEmail();
+      this.phone = user.getPhoneNumber();
       this.role = user.getRole();
       this.createdAt = user.getCreatedAt();
    }

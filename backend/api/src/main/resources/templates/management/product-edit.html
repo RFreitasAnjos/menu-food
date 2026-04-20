@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+   <th:block th:replace="~{management/layout :: head('Editar Produto')}"></th:block>
+   <style>
+      .img-preview {
+         max-width: 140px;
+         max-height: 140px;
+         object-fit: cover;
+         border-radius: 0.5rem;
+      }
+   </style>
+</head>
+
+<body>
+
+   <th:block th:replace="~{management/layout :: sidebar('products')}"></th:block>
+
+   <div class="main-wrapper">
+      <th:block th:replace="~{management/layout :: topbar('Editar Produto')}"></th:block>
+
+      <main class="main-content">
+         <th:block th:replace="~{management/layout :: alerts}"></th:block>
+
+         <div class="mb-3">
+            <a href="/management/products" class="btn btn-sm btn-outline-secondary">
+               <i class="bi bi-arrow-left me-1"></i>Voltar para Produtos
+            </a>
+         </div>
+
+         <div class="row g-4">
+
+            <!-- ═══════════════════════════════════════════════════════════
+                 Coluna esquerda — editar dados do produto
+            ════════════════════════════════════════════════════════════ -->
+            <div class="col-lg-5">
+               <div class="card stat-card">
+                  <div class="card-header bg-white border-0 pt-3 pb-1">
+                     <h6 class="fw-semibold mb-0">
+                        <i class="bi bi-pencil me-2 text-primary"></i>Informações do Produto
+                     </h6>
+                  </div>
+                  <div class="card-body">
+
+                     <!-- Preview da imagem atual -->
+                     <div id="imageUploadArea" class="border rounded-3 position-relative overflow-hidden mb-3"
+                        style="height:180px; cursor:pointer; border-style:dashed !important;">
+                        <img id="imgPreview" th:src="${product.imageUrl}" alt="Imagem"
+                           th:class="${'w-100 h-100 ' + (product.imageUrl != null ? '' : 'd-none')}"
+                           style="object-fit:cover;">
+                        <div id="uploadPlaceholder"
+                           th:class="${'d-flex flex-column align-items-center justify-content-center h-100 text-muted ' + (product.imageUrl != null ? 'd-none' : '')}">
+                           <i class="bi bi-camera fs-1"></i>
+                           <small class="mt-1">Clique para alterar imagem</small>
+                        </div>
+                        <div id="uploadOverlay" class="d-none position-absolute top-0 start-0 w-100 h-100
+                                        d-flex align-items-center justify-content-center"
+                           style="background:rgba(0,0,0,.5);">
+                           <div class="spinner-border text-white" role="status"></div>
+                        </div>
+                     </div>
+                     <input type="file" id="fileInput" accept="image/*" class="d-none">
+                     <div id="uploadError" class="text-danger small mb-3"></div>
+
+                     <form th:action="@{/management/products/{id}/edit(id=${product.id})}" method="post">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
+                        <div class="mb-3">
+                           <label class="form-label fw-semibold">
+                              Nome <span class="text-danger">*</span>
+                           </label>
+                           <input type="text" name="name" class="form-control" required maxlength="50"
+                              th:value="${product.name}">
+                        </div>
+
+                        <div class="mb-3">
+                           <label class="form-label fw-semibold">Descrição</label>
+                           <textarea name="description" class="form-control" rows="3" maxlength="255"
+                              th:text="${product.description}"></textarea>
+                        </div>
+
+                        <div class="row g-2 mb-3">
+                           <div class="col-6">
+                              <label class="form-label fw-semibold">
+                                 Preço (R$) <span class="text-danger">*</span>
+                              </label>
+                              <input type="number" name="price" class="form-control" step="0.01" min="0" required
+                                 th:value="${product.basePrice}">
+                           </div>
+                           <div class="col-6">
+                              <label class="form-label fw-semibold">Categoria</label>
+                              <select name="category" class="form-select">
+                                 <option value="">Sem categoria</option>
+                                 <option th:each="cat : ${categories}" th:value="${cat.name()}" th:text="${cat.name() == 'FOOD' ? 'Comida' :
+                                                           cat.name() == 'DRINK' ? 'Bebida' : 'Sobremesa'}"
+                                    th:selected="${cat == product.category}">-</option>
+                              </select>
+                           </div>
+                        </div>
+
+                        <div class="mb-3">
+                           <label class="form-label fw-semibold">URL da Imagem</label>
+                           <input type="hidden" name="imageUrl" id="imageUrlField" th:value="${product.imageUrl}">
+                           <div class="form-text">Clique na área acima para alterar a imagem.</div>
+                        </div>
+
+                        <div class="mb-4">
+                           <label class="form-label fw-semibold">Status</label>
+                           <select name="isActive" class="form-select">
+                              <option value="true" th:selected="${product.active}">Ativo</option>
+                              <option value="false" th:selected="${!product.active}">Inativo</option>
+                           </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">
+                           <i class="bi bi-check-circle me-1"></i>Salvar Alterações
+                        </button>
+                     </form>
+                  </div>
+               </div>
+            </div>
+
+            <!-- ═══════════════════════════════════════════════════════════
+                 Coluna direita — grupos de opções
+            ════════════════════════════════════════════════════════════ -->
+            <div class="col-lg-7">
+               <div class="card stat-card">
+                  <div
+                     class="card-header bg-white border-0 d-flex align-items-center justify-content-between pt-3 pb-1">
+                     <h6 class="fw-semibold mb-0">
+                        <i class="bi bi-list-check me-2 text-primary"></i>Grupos de Opções
+                     </h6>
+                     <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#addGroupForm">
+                        <i class="bi bi-plus me-1"></i>Novo Grupo
+                     </button>
+                  </div>
+                  <div class="card-body">
+
+                     <!-- Form para adicionar novo grupo (colapsável) -->
+                     <div class="collapse mb-3" id="addGroupForm">
+                        <div class="border rounded p-3 bg-light">
+                           <h6 class="fw-semibold mb-3 small text-uppercase text-muted">Adicionar Grupo</h6>
+                           <form th:action="@{/management/products/{id}/groups(id=${product.id})}" method="post">
+                              <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                              <div class="mb-2">
+                                 <label class="form-label small fw-semibold">
+                                    Nome do Grupo <span class="text-danger">*</span>
+                                 </label>
+                                 <input type="text" name="name" class="form-control form-control-sm" required
+                                    placeholder="Ex: Ponto da Carne, Adicionais...">
+                              </div>
+                              <div class="row g-2 mb-3">
+                                 <div class="col-4">
+                                    <label class="form-label small fw-semibold">Mín. Seleções</label>
+                                    <input type="number" name="minSelection" class="form-control form-control-sm"
+                                       value="0" min="0">
+                                 </div>
+                                 <div class="col-4">
+                                    <label class="form-label small fw-semibold">Máx. Seleções</label>
+                                    <input type="number" name="maxSelection" class="form-control form-control-sm"
+                                       value="1" min="1">
+                                 </div>
+                                 <div class="col-4">
+                                    <label class="form-label small fw-semibold">Obrigatório</label>
+                                    <select name="required" class="form-select form-select-sm">
+                                       <option value="false">Não</option>
+                                       <option value="true">Sim</option>
+                                    </select>
+                                 </div>
+                              </div>
+                              <button type="submit" class="btn btn-sm btn-primary">
+                                 <i class="bi bi-check me-1"></i>Criar Grupo
+                              </button>
+                           </form>
+                        </div>
+                     </div>
+
+                     <!-- Grupos existentes -->
+                     <div th:if="${product.optionGroups == null or product.optionGroups.empty}"
+                        class="text-center text-muted py-5">
+                        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                        Nenhum grupo de opções cadastrado.<br>
+                        <small>Use o botão "Novo Grupo" para começar.</small>
+                     </div>
+
+                     <div class="accordion" id="groupsAccordion"
+                        th:unless="${product.optionGroups == null or product.optionGroups.empty}">
+
+                        <div class="accordion-item border rounded overflow-hidden mb-2"
+                           th:each="group, gStat : ${product.optionGroups}">
+
+                           <h2 class="accordion-header">
+                              <button class="accordion-button py-2 fw-semibold small" type="button"
+                                 data-bs-toggle="collapse" th:attr="data-bs-target='#grp_' + ${gStat.index}"
+                                 aria-expanded="true">
+                                 <i class="bi bi-collection me-2 text-primary"></i>
+                                 <span th:text="${group.name}">Grupo</span>
+                                 <span th:if="${group.required}"
+                                    class="badge bg-danger ms-2 fw-normal">Obrigatório</span>
+                                 <span class="badge bg-light text-dark border ms-2 fw-normal"
+                                    th:text="${group.minSelection} + '–' + ${group.maxSelection} + ' seleções'">
+                                 </span>
+                              </button>
+                           </h2>
+
+                           <div th:id="'grp_' + ${gStat.index}" class="accordion-collapse collapse show">
+                              <div class="accordion-body pt-2">
+
+                                 <!-- Opções existentes -->
+                                 <table class="table table-sm table-hover align-middle mb-3"
+                                    th:unless="${group.options == null or group.options.empty}">
+                                    <thead>
+                                       <tr class="table-light">
+                                          <th>Opção</th>
+                                          <th class="text-end">Preço adicional</th>
+                                       </tr>
+                                    </thead>
+                                    <tbody>
+                                       <tr th:each="opt : ${group.options}">
+                                          <td th:text="${opt.name}">-</td>
+                                          <td class="text-end">
+                                             <div class="d-inline-flex align-items-center gap-2 justify-content-end">
+                                                <span th:text="${opt.price != null ?
+                                                   '+ R$ ' + #numbers.formatDecimal(opt.price, 1, 'POINT', 2, 'COMMA') :
+                                                   'Grátis'}"></span>
+                                                <!-- Botão Editar -->
+                                                <button type="button" class="btn btn-link btn-sm p-0 text-primary"
+                                                   title="Editar" th:attr="
+                                                      data-opt-id=${opt.id},
+                                                      data-opt-name=${opt.name},
+                                                      data-opt-price=${opt.price},
+                                                      data-pid=${product.id},
+                                                      data-gid=${group.id}" onclick="openEditModal(this)">
+                                                   <i class="bi bi-pencil"></i>
+                                                </button>
+                                                <!-- Botão Excluir -->
+                                                <form
+                                                   th:action="@{/management/products/{pid}/groups/{gid}/options/{oid}/delete(pid=${product.id},gid=${group.id},oid=${opt.id})}" method="post" class="d-inline">
+                                                   <input type="hidden" th:name="${_csrf.parameterName}"
+                                                      th:value="${_csrf.token}">
+                                                   <button type="submit" class="btn btn-link btn-sm p-0 text-danger"
+                                                      title="Excluir"
+                                                      onclick="return confirm('Tem certeza que deseja excluir esta opção?');">
+                                                      <i class="bi bi-trash"></i>
+                                                   </button>
+                                                </form>
+                                             </div>
+                                          </td>
+                                       </tr>
+                                    </tbody>
+                                 </table>
+
+                                 <p class="text-muted small mb-2"
+                                    th:if="${group.options == null or group.options.empty}">
+                                    Nenhuma opção cadastrada ainda.
+                                 </p>
+
+                                 <!-- Form para adicionar opção a este grupo -->
+                                 <div class="border-top pt-3">
+                                    <p class="small fw-semibold text-muted mb-2">
+                                       <i class="bi bi-plus-circle me-1"></i>Adicionar opção:
+                                    </p>
+                                    <form
+                                       th:action="@{/management/products/{pid}/groups/{gid}/options(pid=${product.id},gid=${group.id})}"
+                                       method="post" class="row g-2 align-items-end">
+                                       <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                       <div class="col-sm-6">
+                                          <label class="form-label small mb-1">
+                                             Nome <span class="text-danger">*</span>
+                                          </label>
+                                          <input type="text" name="name" class="form-control form-control-sm" required
+                                             placeholder="Ex: Mal passado, Sem cebola">
+                                       </div>
+                                       <div class="col-sm-3">
+                                          <label class="form-label small mb-1">Preço adicional</label>
+                                          <input type="number" name="price" class="form-control form-control-sm"
+                                             step="0.01" min="0" value="0" placeholder="0.00">
+                                       </div>
+                                       <div class="col-sm-3">
+                                          <button type="submit" class="btn btn-sm btn-success w-100">
+                                             <i class="bi bi-plus"></i> Add
+                                          </button>
+                                       </div>
+                                    </form>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </main>
+   </div>
+
+   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+   <!-- Modal de edição de opção -->
+   <div class="modal fade" id="editOptionModal" tabindex="-1" aria-labelledby="editOptionModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-sm">
+         <div class="modal-content">
+            <div class="modal-header py-2">
+               <h6 class="modal-title fw-semibold" id="editOptionModalLabel">
+                  <i class="bi bi-pencil me-1 text-primary"></i>Editar Opção
+               </h6>
+               <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editOptionForm" method="post">
+               <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+               <div class="modal-body">
+                  <div class="mb-3">
+                     <label class="form-label small fw-semibold">Nome <span class="text-danger">*</span></label>
+                     <input type="text" id="editOptName" name="name" class="form-control form-control-sm" required
+                        maxlength="100">
+                  </div>
+                  <div>
+                     <label class="form-label small fw-semibold">Preço adicional (R$)</label>
+                     <input type="number" id="editOptPrice" name="price" class="form-control form-control-sm"
+                        step="0.01" min="0" placeholder="0.00">
+                  </div>
+               </div>
+               <div class="modal-footer py-2">
+                  <button type="button" class="btn btn-sm btn-outline-secondary"
+                     data-bs-dismiss="modal">Cancelar</button>
+                  <button type="submit" class="btn btn-sm btn-primary">
+                     <i class="bi bi-check me-1"></i>Salvar
+                  </button>
+               </div>
+            </form>
+         </div>
+      </div>
+   </div>
+   <script>
+      (function () {
+         const area = document.getElementById('imageUploadArea');
+         const fileIn = document.getElementById('fileInput');
+         const preview = document.getElementById('imgPreview');
+         const holder = document.getElementById('uploadPlaceholder');
+         const overlay = document.getElementById('uploadOverlay');
+         const errDiv = document.getElementById('uploadError');
+         const urlField = document.getElementById('imageUrlField');
+
+         area.addEventListener('click', () => fileIn.click());
+
+         fileIn.addEventListener('change', async function () {
+            const file = this.files[0];
+            if (!file) return;
+
+            overlay.classList.remove('d-none');
+            overlay.classList.add('d-flex');
+            errDiv.textContent = '';
+
+            const fd = new FormData();
+            fd.append('file', file);
+
+            try {
+               const res = await fetch('/management/api/upload-image', { method: 'POST', body: fd });
+               const data = await res.json();
+               if (!res.ok) throw new Error(data.error || 'Upload falhou');
+
+               urlField.value = data.url;
+               preview.src = data.url;
+               preview.classList.remove('d-none');
+               holder.classList.add('d-none');
+            } catch (err) {
+               errDiv.textContent = err.message;
+            } finally {
+               overlay.classList.remove('d-flex');
+               overlay.classList.add('d-none');
+            }
+         });
+      })();
+
+      function openEditModal(btn) {
+         const optId = btn.dataset.optId;
+         const pid = btn.dataset.pid;
+         const gid = btn.dataset.gid;
+         document.getElementById('editOptName').value = btn.dataset.optName || '';
+         document.getElementById('editOptPrice').value = btn.dataset.optPrice || '';
+         document.getElementById('editOptionForm').action =
+            `/management/products/${pid}/groups/${gid}/options/${optId}/edit`;
+         new bootstrap.Modal(document.getElementById('editOptionModal')).show();
+      }
+   </script>
+</body>
+
+</html>

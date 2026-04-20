@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title th:text="'Extrato ' + ${order.shortId}">Extrato do Pedido</title>
+  <style>
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-size: 13px;
+      color: #1a1a1a;
+      background: #f4f4f4;
+    }
+
+    /* ── Wrapper de tela ── */
+    .page-wrapper {
+      max-width: 680px;
+      margin: 32px auto;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 16px rgba(0,0,0,.12);
+      overflow: hidden;
+    }
+
+    /* ── Header ── */
+    .receipt-header {
+      background: #cc2200;
+      color: #fff;
+      padding: 24px 32px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .receipt-header .brand {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      line-height: 1;
+    }
+    .receipt-header .brand small {
+      display: block;
+      font-size: 11px;
+      font-weight: 400;
+      opacity: .8;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-top: 3px;
+    }
+    .receipt-header .order-num {
+      text-align: right;
+      line-height: 1.3;
+    }
+    .receipt-header .order-num .label {
+      font-size: 10px;
+      opacity: .75;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .receipt-header .order-num .num {
+      font-size: 26px;
+      font-weight: 800;
+      font-family: monospace;
+    }
+
+    /* ── Status banner ── */
+    .status-banner {
+      padding: 8px 32px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .status-banner.paid     { background: #d1fae5; color: #065f46; }
+    .status-banner.canceled { background: #fee2e2; color: #991b1b; }
+    .status-banner.pending  { background: #fef9c3; color: #713f12; }
+    .status-banner .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      flex-shrink: 0;
+    }
+
+    /* ── Body ── */
+    .receipt-body { padding: 24px 32px; }
+
+    /* ── Section headers ── */
+    .section-title {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: #888;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 6px;
+      margin-bottom: 12px;
+    }
+
+    /* ── Two-col info grid ── */
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px 32px;
+      margin-bottom: 28px;
+    }
+    .info-block .label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: #888;
+      margin-bottom: 2px;
+    }
+    .info-block .value {
+      font-size: 13px;
+      font-weight: 600;
+      color: #111;
+    }
+    .info-block .value.muted { font-weight: 400; color: #444; }
+
+    /* ── Items table ── */
+    .items-section { margin-bottom: 28px; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: #888;
+      padding: 8px 6px;
+      border-bottom: 2px solid #eee;
+      text-align: left;
+    }
+    thead th.r { text-align: right; }
+    tbody td {
+      padding: 9px 6px;
+      border-bottom: 1px solid #f3f3f3;
+      color: #222;
+      vertical-align: middle;
+    }
+    tbody td.r { text-align: right; }
+    tbody td .qty-badge {
+      display: inline-block;
+      background: #f3f3f3;
+      border-radius: 4px;
+      padding: 1px 7px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    /* ── Totals ── */
+    .totals { margin-top: 6px; }
+    .totals .row {
+      display: flex;
+      justify-content: space-between;
+      padding: 5px 0;
+      font-size: 13px;
+      color: #444;
+      border-bottom: 1px dashed #eee;
+    }
+    .totals .row.grand {
+      border-bottom: none;
+      border-top: 2px solid #222;
+      margin-top: 4px;
+      padding-top: 10px;
+      font-size: 16px;
+      font-weight: 800;
+      color: #111;
+    }
+    .totals .row.grand .amount { color: #cc2200; }
+
+    /* ── Divider ── */
+    .dashed-divider {
+      border: none;
+      border-top: 2px dashed #ddd;
+      margin: 24px 0;
+    }
+
+    /* ── Footer ── */
+    .receipt-footer {
+      background: #fafafa;
+      border-top: 1px solid #eee;
+      padding: 14px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .receipt-footer .note {
+      font-size: 11px;
+      color: #aaa;
+    }
+    .print-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #cc2200;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 7px 16px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .print-btn:hover { background: #a81c00; }
+
+    /* ── Print styles ── */
+    @media print {
+      body { background: #fff; }
+      .page-wrapper {
+        max-width: 100%;
+        margin: 0;
+        box-shadow: none;
+        border-radius: 0;
+      }
+      .print-btn, .no-print { display: none !important; }
+      .receipt-footer { display: none; }
+      @page { margin: 12mm; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-wrapper">
+
+  <!-- ── Header ─────────────────────────────────── -->
+  <div class="receipt-header">
+    <div class="brand">
+      MenuFood
+      <small>Cardápio Virtual</small>
+    </div>
+    <div class="order-num">
+      <div class="label">Nº do Pedido</div>
+      <div class="num" th:text="${order.shortId}">#00000000</div>
+    </div>
+  </div>
+
+  <!-- ── Status banner ─────────────────────────── -->
+  <div th:classappend="${
+      order.status.name() == 'DELIVERED' or order.status.name() == 'PAID' ? 'paid' :
+      order.status.name() == 'CANCELED' ? 'canceled' : 'pending'
+    }" class="status-banner">
+    <span class="dot"></span>
+    <span th:text="${
+      order.status.name() == 'PENDING'        ? 'Aguardando pagamento' :
+      order.status.name() == 'PAID'           ? 'Pago' :
+      order.status.name() == 'IN_PREPARATION' ? 'Em preparo' :
+      order.status.name() == 'SENT'           ? 'Enviado' :
+      order.status.name() == 'DELIVERED'      ? 'Entregue' :
+      order.status.name() == 'CANCELED'       ? 'Cancelado' :
+      order.status.name().replace('_', ' ')
+    }">Status</span>
+  </div>
+
+  <!-- ── Body ──────────────────────────────────── -->
+  <div class="receipt-body">
+
+    <!-- Dados do pedido + cliente -->
+    <p class="section-title">Informações</p>
+    <div class="info-grid">
+      <div class="info-block">
+        <div class="label">Data / Hora</div>
+        <div class="value muted"
+          th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy')} + ' às ' + ${#temporals.format(order.createdAt, 'HH:mm')}">
+          -
+        </div>
+      </div>
+      <div class="info-block">
+        <div class="label">Status de Pagamento</div>
+        <div class="value" th:text="${
+          order.status.name() == 'PAID' or order.status.name() == 'IN_PREPARATION' or
+          order.status.name() == 'SENT' or order.status.name() == 'DELIVERED'
+            ? '✅ Pago'
+            : order.status.name() == 'CANCELED'
+              ? '❌ Cancelado'
+              : '⏳ Não pago'
+        }">-</div>
+      </div>
+      <div class="info-block">
+        <div class="label">Cliente</div>
+        <div class="value" th:text="${order.userName}">-</div>
+      </div>
+      <div class="info-block">
+        <div class="label">Celular</div>
+        <div class="value muted" th:text="${order.userPhone}">-</div>
+      </div>
+      <div class="info-block" style="grid-column: 1 / -1">
+        <div class="label">E-mail</div>
+        <div class="value muted" th:text="${order.userEmail}">-</div>
+      </div>
+    </div>
+
+    <!-- Endereço -->
+    <div th:if="${order.address != null}" style="margin-bottom: 28px;">
+      <p class="section-title">Endereço de Entrega</p>
+      <div class="info-grid">
+        <div class="info-block">
+          <div class="label">Logradouro</div>
+          <div class="value muted"
+            th:text="${order.address.street + ', ' + order.address.number}">-</div>
+        </div>
+        <div class="info-block">
+          <div class="label">Bairro</div>
+          <div class="value muted" th:text="${order.address.neighborhood}">-</div>
+        </div>
+        <div class="info-block">
+          <div class="label">Cidade / Estado</div>
+          <div class="value muted"
+            th:text="${order.address.city + ' — ' + order.address.state}">-</div>
+        </div>
+        <div class="info-block" th:if="${order.address.zipCode != null}">
+          <div class="label">CEP</div>
+          <div class="value muted" th:text="${order.address.zipCode}">-</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Itens -->
+    <div class="items-section">
+      <p class="section-title">Itens do Pedido</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Produto</th>
+            <th class="r">Qtd</th>
+            <th class="r">Unit.</th>
+            <th class="r">Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="item : ${order.items}">
+            <td th:text="${item.productName}">-</td>
+            <td class="r"><span class="qty-badge" th:text="${item.quantity}">1</span></td>
+            <td class="r" th:text="${'R$ ' + #numbers.formatDecimal(item.basePrice, 1, 'POINT', 2, 'COMMA')}">-</td>
+            <td class="r" th:text="${'R$ ' + #numbers.formatDecimal(item.totalPrice, 1, 'POINT', 2, 'COMMA')}">-</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Totais -->
+    <hr class="dashed-divider" />
+    <div class="totals">
+      <div class="row grand">
+        <span>Total</span>
+        <span class="amount"
+          th:text="${'R$ ' + #numbers.formatDecimal(order.totalPrice, 1, 'POINT', 2, 'COMMA')}">
+          R$ 0,00
+        </span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Footer ─────────────────────────────────── -->
+  <div class="receipt-footer">
+    <span class="note">
+      Emitido em <span th:text="${#temporals.format(#temporals.createNow(), 'dd/MM/yyyy HH:mm')}">-</span>
+      &nbsp;·&nbsp; MenuFood — Cardápio Virtual
+    </span>
+    <button class="print-btn" onclick="window.print()">
+      🖨️ Imprimir
+    </button>
+  </div>
+
+</div>
+
+</body>
+</html>

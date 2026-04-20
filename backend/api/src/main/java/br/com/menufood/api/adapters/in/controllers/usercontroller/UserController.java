@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,12 +19,14 @@ import br.com.menufood.api.application.dto.address.AddressResponse;
 import br.com.menufood.api.application.dto.address.CreateAddressRequest;
 import br.com.menufood.api.application.dto.order.OrderResponse;
 import br.com.menufood.api.application.dto.user.CreateUserRequest;
+import br.com.menufood.api.application.dto.user.UpdateUserRequest;
 import br.com.menufood.api.application.dto.user.UserResponse;
 import br.com.menufood.api.application.usecases.orderUseCases.GetOrderHistoryUseCase;
 import br.com.menufood.api.application.usecases.userUseCases.AddUserAddressUseCase;
 import br.com.menufood.api.application.usecases.userUseCases.CreateUserUseCase;
 import br.com.menufood.api.application.usecases.userUseCases.DeleteUserAddressUseCase;
 import br.com.menufood.api.application.usecases.userUseCases.ListUserAddressesUseCase;
+import br.com.menufood.api.application.usecases.userUseCases.UpdateUserUseCase;
 import br.com.menufood.api.application.usecases.userUseCases.UserResponseUseCase;
 import br.com.menufood.api.domain.entities.User;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -39,6 +42,7 @@ public class UserController {
 
    private final CreateUserUseCase createUserUseCase;
    private final UserResponseUseCase userResponseUseCase;
+   private final UpdateUserUseCase updateUserUseCase;
    private final AddUserAddressUseCase addUserAddressUseCase;
    private final ListUserAddressesUseCase listUserAddressesUseCase;
    private final DeleteUserAddressUseCase deleteUserAddressUseCase;
@@ -59,6 +63,17 @@ public class UserController {
    public ResponseEntity<UserResponse> getMe(@AuthenticationPrincipal UserDetails userDetails) {
       User user = userResponseUseCase.executeByEmail(userDetails.getUsername());
       return ResponseEntity.ok(new UserResponse(user));
+   }
+
+   @PutMapping("/me")
+   @SecurityRequirement(name = "bearerAuth")
+   @ApiResponse(responseCode = "200", description = "Perfil atualizado com sucesso")
+   public ResponseEntity<UserResponse> updateMe(
+         @AuthenticationPrincipal UserDetails userDetails,
+         @RequestBody UpdateUserRequest request) {
+      User user = userResponseUseCase.executeByEmail(userDetails.getUsername());
+      User updated = updateUserUseCase.execute(user, request);
+      return ResponseEntity.ok(new UserResponse(updated));
    }
 
    @GetMapping("/me/addresses")

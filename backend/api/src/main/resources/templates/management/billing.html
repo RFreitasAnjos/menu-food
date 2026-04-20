@@ -1,0 +1,209 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <th:block th:replace="~{management/layout :: head('Faturamento')}"></th:block>
+</head>
+<body>
+
+<th:block th:replace="~{management/layout :: sidebar('billing')}"></th:block>
+
+<div class="main-wrapper">
+    <th:block th:replace="~{management/layout :: topbar('Faturamento')}"></th:block>
+
+    <main class="main-content">
+        <th:block th:replace="~{management/layout :: alerts}"></th:block>
+
+        <!-- Revenue KPIs -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="card stat-card h-100 border-start border-4 border-success">
+                    <div class="card-body">
+                        <div class="text-muted small mb-1">Faturamento Total (confirmados)</div>
+                        <div class="fs-2 fw-bold text-success"
+                             th:text="${'R$ ' + #numbers.formatDecimal(stats.totalRevenue, 1, 'POINT', 2, 'COMMA')}">R$ 0,00</div>
+                        <div class="text-muted small mt-1">Pedidos pagos, em preparo, enviados e entregues</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card stat-card h-100 border-start border-4 border-primary">
+                    <div class="card-body">
+                        <div class="text-muted small mb-1">Faturamento de Hoje</div>
+                        <div class="fs-2 fw-bold text-primary"
+                             th:text="${'R$ ' + #numbers.formatDecimal(stats.revenueToday, 1, 'POINT', 2, 'COMMA')}">R$ 0,00</div>
+                        <div class="text-muted small mt-1">Pedidos confirmados hoje</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card stat-card h-100 border-start border-4 border-secondary">
+                    <div class="card-body">
+                        <div class="text-muted small mb-1">Total de Pedidos</div>
+                        <div class="fs-2 fw-bold" th:text="${stats.totalOrders}">0</div>
+                        <div class="text-muted small mt-1">Todos os status</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPIs do Mês Atual -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="card stat-card h-100 border-start border-4 border-warning">
+                    <div class="card-body">
+                        <div class="text-muted small mb-1">Faturamento do Mês</div>
+                        <div class="fs-2 fw-bold text-warning"
+                             th:text="${'R$ ' + #numbers.formatDecimal(stats.monthlyRevenue, 1, 'POINT', 2, 'COMMA')}">R$ 0,00</div>
+                        <div class="text-muted small mt-1">Pedidos confirmados no mês atual</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card stat-card h-100 border-start border-4 border-info">
+                    <div class="card-body">
+                        <div class="text-muted small mb-1">Ticket Médio do Mês</div>
+                        <div class="fs-2 fw-bold text-info"
+                             th:text="${'R$ ' + #numbers.formatDecimal(stats.averageTicket, 1, 'POINT', 2, 'COMMA')}">R$ 0,00</div>
+                        <div class="text-muted small mt-1"
+                             th:text="${stats.monthlyOrderCount} + ' pedido(s) confirmado(s)'">0 pedidos</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card stat-card h-100 border-start border-4 border-danger">
+                    <div class="card-body">
+                        <div class="text-muted small mb-1">Pedidos no Mês</div>
+                        <div class="fs-2 fw-bold text-danger" th:text="${stats.monthlyOrderCount}">0</div>
+                        <div class="text-muted small mt-1">Total confirmados no mês atual</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráfico de Faturamento Diário -->
+        <div class="card stat-card mb-4">
+            <div class="card-header bg-white border-0 pt-3 pb-1 d-flex align-items-center gap-2">
+                <i class="bi bi-graph-up-arrow text-primary"></i>
+                <h6 class="fw-semibold mb-0">Faturamento Diário — Mês Atual</h6>
+            </div>
+            <div class="card-body">
+                <canvas id="dailyRevenueChart" height="100"></canvas>
+            </div>
+        </div>
+
+        <!-- Breakdown por status -->
+        <div class="card stat-card mb-4">
+            <div class="card-header bg-white border-0 pt-3 pb-1">
+                <h6 class="fw-semibold mb-0">Distribuição por Status</h6>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                        <tr>
+                            <th>Status</th>
+                            <th class="text-end">Quantidade de Pedidos</th>
+                            <th class="text-end">% do Total</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="entry : ${stats.countByStatus}">
+                            <td>
+                                <span class="badge badge-status rounded-pill me-2"
+                                      th:classappend="${
+                                        entry.key.name() == 'DELIVERED'       ? 'bg-success' :
+                                        entry.key.name() == 'CANCELED'        ? 'bg-danger'  :
+                                        entry.key.name() == 'PAID'            ? 'bg-primary' :
+                                        entry.key.name() == 'IN_PREPARATION'  ? 'bg-primary' :
+                                        entry.key.name() == 'SENT'            ? 'bg-info'    :
+                                        'bg-secondary'}"
+                                      th:text="${entry.key.name().replace('_',' ')}">-</span>
+                            </td>
+                            <td class="text-end fw-semibold" th:text="${entry.value}">0</td>
+                            <td class="text-end text-muted">
+                                <span th:text="${stats.totalOrders > 0 ?
+                                    #numbers.formatDecimal(entry.value * 100.0 / stats.totalOrders, 1, 'POINT', 1, 'COMMA') + '%'
+                                    : '0%'}">0%</span>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info card -->
+        <div class="alert alert-info d-flex align-items-start gap-2">
+            <i class="bi bi-info-circle-fill fs-5 mt-1"></i>
+            <div>
+                <strong>Sobre o faturamento:</strong> São contabilizados como faturamento os pedidos com status
+                <strong>PAID</strong>, <strong>IN_PREPARATION</strong>, <strong>SENT</strong> e <strong>DELIVERED</strong>.
+                Pedidos com status <strong>CREATED</strong>, <strong>WAITING_PAYMENT</strong> e <strong>CANCELED</strong>
+                não entram no cálculo de receita.
+            </div>
+        </div>
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script th:inline="javascript">
+    const chartLabels = [[${stats.dailyLabels}]];
+    const chartData   = [[${stats.dailyData}]];
+
+    const ctx = document.getElementById('dailyRevenueChart').getContext('2d');
+    const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+    gradient.addColorStop(0, 'rgba(13, 110, 253, 0.25)');
+    gradient.addColorStop(1, 'rgba(13, 110, 253, 0.0)');
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: chartLabels,
+            datasets: [{
+                label: 'Faturamento diário (R$)',
+                data: chartData,
+                borderColor: '#0d6efd',
+                backgroundColor: gradient,
+                borderWidth: 2.5,
+                pointRadius: 4,
+                pointBackgroundColor: '#0d6efd',
+                pointHoverRadius: 6,
+                fill: true,
+                tension: 0.35
+            }]
+        },
+        options: {
+            responsive: true,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(ctx) {
+                            return ' R$ ' + ctx.parsed.y.toLocaleString('pt-BR', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            });
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: { grid: { display: false } },
+                y: {
+                    beginAtZero: true,
+                    grid: { color: '#f0f0f0' },
+                    ticks: {
+                        callback: function(v) {
+                            return 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 0 });
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
+</body>
+</html>

@@ -18,6 +18,7 @@ public class CreateProductUseCase {
          .name(request.getName())
          .description(request.getDescription())
          .basePrice(request.getPrice())
+         .category(request.getCategory())
          .isActive(true)
          .build();
       return productRepository.save(product);

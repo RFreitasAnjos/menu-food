@@ -40,6 +40,6 @@ public class ProductOptionGroup {
    @JoinColumn(name = "product_id")
    private Product product;
 
-   @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+   @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
    private List<ProductOption> options;
 }

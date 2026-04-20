@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import br.com.menufood.api.adapters.out.persistence.ProductRepository;
+import br.com.menufood.api.domain.entities.Product;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -13,9 +14,9 @@ public class DeleteProductUseCase {
     private final ProductRepository productRepository;
 
     public void execute(UUID id) {
-        if (!productRepository.existsById(id)) {
-            throw new RuntimeException("Produto não encontrado: " + id);
-        }
-        productRepository.deleteById(id);
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Produto não encontrado: " + id));
+        product.setActive(false);
+        productRepository.save(product);
     }
 }

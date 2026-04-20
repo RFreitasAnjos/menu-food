@@ -2,6 +2,7 @@ package br.com.menufood.api.application.dto.product;
 
 import java.math.BigDecimal;
 
+import br.com.menufood.api.domain.enums.Category;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,4 +12,5 @@ public class CreateProductRequest {
    private String name;
    private String description;
    private BigDecimal price;
+   private Category category;
 }
